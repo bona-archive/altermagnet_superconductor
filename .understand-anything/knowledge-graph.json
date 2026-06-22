@@ -1,0 +1,2649 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "altermagnet_superconductor",
+    "languages": [
+      "matlab"
+    ],
+    "frameworks": [
+      "MATLAB"
+    ],
+    "description": "A MATLAB research codebase for studying superconductivity in altermagnetic materials (specifically RuO2), implementing BdG mean-field theory to compute competing phase diagrams, FFLO states, superfluid density, and experimental observables.",
+    "analyzedAt": "2026-06-22T00:00:00Z",
+    "gitCommitHash": "a41e65409b378c916c93fec0959cd6e09118f19a"
+  },
+  "nodes": [
+    {
+      "id": "file:Alterdispersion.m",
+      "type": "file",
+      "name": "Alterdispersion.m",
+      "filePath": "Alterdispersion.m",
+      "summary": "Pure utility function that computes the altermagnet spin-splitting dispersion J*sin(kx)*sin(ky) over a 2D k-space grid, returning the momentum-dependent altermagnet coupling matrix used by BdG solvers.",
+      "tags": [
+        "utility",
+        "service",
+        "data-model"
+      ],
+      "complexity": "simple",
+      "languageNotes": "MATLAB function file: single exported function `Alterdispersion(kkx, kky, J)` returning a 2D array."
+    },
+    {
+      "id": "function:Alterdispersion.m:Alterdispersion",
+      "type": "function",
+      "name": "Alterdispersion",
+      "filePath": "Alterdispersion.m",
+      "lineRange": [
+        1,
+        10
+      ],
+      "summary": "Computes the altermagnet dispersion J*sin(kx)*sin(ky) for all (kx, ky) grid points, the core k-dependent spin-splitting term for the altermagnetic superconductor model.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:Hbdg_solver.m",
+      "type": "file",
+      "name": "Hbdg_solver.m",
+      "filePath": "Hbdg_solver.m",
+      "summary": "Core BdG (Bogoliubov-de Gennes) Hamiltonian solver supporting multiple superconducting pairing symmetries (s, p+ip, p-, px, py, chiral-mixed, es, d-wave) and optional finite Cooper-pair momentum q for FFLO states; returns Green's function correlators, quasiparticle energies, and the self-consistent gap.",
+      "tags": [
+        "service",
+        "physics-kernel",
+        "utility"
+      ],
+      "complexity": "complex",
+      "languageNotes": "MATLAB function file: single exported function `Hbdg_solver` dispatching over pairing type via strcmp chains. The 4x4 BdG matrix is diagonalized per k-point inside nested loops."
+    },
+    {
+      "id": "function:Hbdg_solver.m:Hbdg_solver",
+      "type": "function",
+      "name": "Hbdg_solver",
+      "filePath": "Hbdg_solver.m",
+      "lineRange": [
+        1,
+        120
+      ],
+      "summary": "Diagonalizes the 4x4 BdG Hamiltonian at each (kx,ky) point for a given pairing type and optional FFLO momentum (qx,qy), computing Fermi-Dirac weighted correlators and the mean-field gap delta(k).",
+      "tags": [
+        "physics-kernel",
+        "service",
+        "utility"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:SymmB_gap_eq_solver.m",
+      "type": "file",
+      "name": "SymmB_gap_eq_solver.m",
+      "filePath": "SymmB_gap_eq_solver.m",
+      "summary": "BdG gap-equation solver for a continuum (quadratic dispersion) altermagnetic model with explicit time-reversal-symmetry-breaking fields (Zeeman or higher-order spin-orbit terms), evaluating occupied energy as a function of inter-band phase phi for multiple triplet pairing channels.",
+      "tags": [
+        "physics-kernel",
+        "service",
+        "utility"
+      ],
+      "complexity": "complex",
+      "languageNotes": "MATLAB function file: uses a continuum k^2 dispersion rather than the tight-binding cos(k) dispersion of Hbdg_solver; supports 'Zeeman', 'SymmB1', 'SymmB2', 'SymmB3cross' TRS-breaking terms."
+    },
+    {
+      "id": "function:SymmB_gap_eq_solver.m:SymmB_gap_eq_solver",
+      "type": "function",
+      "name": "SymmB_gap_eq_solver",
+      "filePath": "SymmB_gap_eq_solver.m",
+      "lineRange": [
+        1,
+        86
+      ],
+      "summary": "Sweeps inter-band phase phi and solves the BdG gap equation for p-wave pairing in a continuum altermagnetic model with symmetry-breaking fields, returning the occupied energy and correlator arrays.",
+      "tags": [
+        "physics-kernel",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:aAMSC_FFLO.m",
+      "type": "file",
+      "name": "aAMSC_FFLO.m",
+      "filePath": "aAMSC_FFLO.m",
+      "summary": "Script that scans Cooper-pair momenta (qx, qy) over a 2D grid for the s-wave altermagnetic superconductor, finds the ground-state FFLO momentum by minimizing the total occupied energy, and plots the energy landscape, contour, and superfluid density tensor.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "visualization"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Script (no function definition at top level). Calls Hbdg_solver as an external function. The superfluid density tensor is extracted as the second derivative of E(q) via MATLAB's gradient function."
+    },
+    {
+      "id": "file:aAMSC_FFLO_REMASTER.m",
+      "type": "file",
+      "name": "aAMSC_FFLO_REMASTER.m",
+      "filePath": "aAMSC_FFLO_REMASTER.m",
+      "summary": "Refined version of the FFLO momentum scan using an analytical BdG reduction to Xi/Lambda variables (avoiding explicit 4x4 diagonalization per k-point), with higher resolution (501x501 grid) and full superfluid density tensor visualization.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "visualization"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Contains three local helper functions: XiLaMaker (computes symmetrized Xi and Lambda from k+q and k-q dispersions), FFgapsolver (analytic FFLO gap solver using quasiparticle sign functions), draw_gapstructure, draw_toponodalstructure, and colorlim."
+    },
+    {
+      "id": "function:aAMSC_FFLO_REMASTER.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "aAMSC_FFLO_REMASTER.m",
+      "lineRange": [
+        182,
+        198
+      ],
+      "summary": "Constructs the symmetrized band energy Xi(k;q) and asymmetry Lambda(k;q) from the k+q and k-q normal-state dispersions, which are the key inputs for the analytic FFLO gap equation.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aAMSC_FFLO_REMASTER.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "aAMSC_FFLO_REMASTER.m",
+      "lineRange": [
+        201,
+        217
+      ],
+      "summary": "Analytically solves the FFLO gap equation using the sign-function criterion on quasiparticle branches Ek±Lambda, returns the ground state energy E_0, self-consistent gap Delta_eta, and anomalous correlator.",
+      "tags": [
+        "physics-kernel",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:aAMSC_FFLO_REMASTER.m:colorlim",
+      "type": "function",
+      "name": "colorlim",
+      "filePath": "aAMSC_FFLO_REMASTER.m",
+      "lineRange": [
+        252,
+        259
+      ],
+      "summary": "Computes a symmetric color scale limit as max(|min|, |max|) of a dataset for use with diverging colormaps.",
+      "tags": [
+        "utility",
+        "visualization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aAMSC_Jscan.m",
+      "type": "file",
+      "name": "aAMSC_Jscan.m",
+      "filePath": "aAMSC_Jscan.m",
+      "summary": "Self-consistent phase diagram script that scans altermagnet coupling J and interaction strengths (Vs, Vp), solving the gap equation for s-wave, p+ip, px, and mixed channels via Hbdg_solver, and also determines the FFLO wavevector self-consistently for each J value.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "phase-diagram"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Calls Hbdg_solver repeatedly in a multi-level loop (J scan × Delta scan × q scan). The FFLO wavevector is found by 1D q minimization of occupied energy at each input Delta."
+    },
+    {
+      "id": "file:aBCS_penetrationdept.m",
+      "type": "file",
+      "name": "aBCS_penetrationdept.m",
+      "filePath": "aBCS_penetrationdept.m",
+      "summary": "Computes the London penetration depth lambda(T) and superfluid stiffness kernel K(T) as a function of temperature for s-wave, FFLO, and p+ip altermagnetic superconductors, using both explicit 2x2 BdG diagonalization and an analytic Xi/Lambda approach.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "penetration-depth"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Contains two local functions: FD (Fermi-Dirac distribution) and FD_prime (its derivative). Uses a linearized current response approximation with a finite vector potential A=0.001."
+    },
+    {
+      "id": "function:aBCS_penetrationdept.m:FD",
+      "type": "function",
+      "name": "FD",
+      "filePath": "aBCS_penetrationdept.m",
+      "lineRange": [
+        222,
+        224
+      ],
+      "summary": "Fermi-Dirac distribution function 1/(exp(en/T)+1) used throughout penetration depth calculations.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aFFLO_eig_qc.m",
+      "type": "file",
+      "name": "aFFLO_eig_qc.m",
+      "filePath": "aFFLO_eig_qc.m",
+      "summary": "Analytic eigenvalue script for the FFLO BdG Hamiltonian that scans Cooper pair momentum q along kx to locate nodal quasiparticle gap closings, plotting the minimum quasiparticle gap vs q to identify gapless FFLO states.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "spectral"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses closed-form 2x2 analytic eigenvalues (spin-split BdG bands) rather than numeric diagonalization, then checks MATLAB's islocalmin to find nodal q values."
+    },
+    {
+      "id": "file:aInAndOut.m",
+      "type": "file",
+      "name": "aInAndOut.m",
+      "filePath": "aInAndOut.m",
+      "summary": "Two-dimensional phase diagram script scanning (J, V) parameter space for s-wave and p+ip altermagnetic superconductors using analytic gap equations, computing self-consistent order parameters and ground state energies to map phase boundaries.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "phase-diagram"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Contains local functions e_k, J_k (tight-binding kinetic energy and altermagnet coupling), and findBFS (Bogoliubov-Fermi surface criterion). Explores both 1D (single parameter) and 2D (J vs V) phase diagrams."
+    },
+    {
+      "id": "function:aInAndOut.m:e_k",
+      "type": "function",
+      "name": "e_k",
+      "filePath": "aInAndOut.m",
+      "lineRange": [
+        464,
+        474
+      ],
+      "summary": "Returns the tight-binding kinetic energy -2t*cos(kx)-2t*cos(ky) for given k-space arrays, with t as a keyword argument.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aInAndOut.m:J_k",
+      "type": "function",
+      "name": "J_k",
+      "filePath": "aInAndOut.m",
+      "lineRange": [
+        476,
+        486
+      ],
+      "summary": "Computes the altermagnet spin-splitting J*sin(kx)*sin(ky) for given k-arrays with J as a keyword argument, the local counterpart of the standalone Alterdispersion.m function.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aInAndOut.m:findBFS",
+      "type": "function",
+      "name": "findBFS",
+      "filePath": "aInAndOut.m",
+      "lineRange": [
+        488,
+        490
+      ],
+      "summary": "Evaluates the Bogoliubov-Fermi surface condition J^2*sin^4(kx) - (4t*cos(kx)-mu)^2 - Delta^2 = 0, used to locate topological Bogoliubov-Fermi arcs.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aLONDON_RESPONSE.m",
+      "type": "file",
+      "name": "aLONDON_RESPONSE.m",
+      "filePath": "aLONDON_RESPONSE.m",
+      "summary": "Prototype script for computing the London electromagnetic response tensor (R_xx, R_yy, R_xy) of the altermagnetic superconductor by integrating over Fermi-surface points, with a local function implementing the tensor contribution from each k-point.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "electrodynamics"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Contains local functions FSmasking (Fermi surface selection by energy window) and LONDON_RESPONSE_TENSOR_singlet (computes Rxx, Ryy, Rxy contributions from a single Fermi-surface point via Fermi velocity and energy integrals). Script references undefined variables from workspace, indicating it is intended to be run after other scripts."
+    },
+    {
+      "id": "function:aLONDON_RESPONSE.m:FSmasking",
+      "type": "function",
+      "name": "FSmasking",
+      "filePath": "aLONDON_RESPONSE.m",
+      "lineRange": [
+        87,
+        92
+      ],
+      "summary": "Selects k-points within a Debye-cutoff energy window of the Fermi level to define the Fermi surface for response function integration.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aLONDON_RESPONSE.m:LONDON_RESPONSE_TENSOR_singlet",
+      "type": "function",
+      "name": "LONDON_RESPONSE_TENSOR_singlet",
+      "filePath": "aLONDON_RESPONSE.m",
+      "lineRange": [
+        95,
+        114
+      ],
+      "summary": "Computes the electromagnetic response tensor components Rxx, Ryy, Rxy at a single Fermi surface k-point for a singlet superconductor, using the Fermi velocity and quasiparticle energy.",
+      "tags": [
+        "physics-kernel",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:aMu_J_dependence.m",
+      "type": "file",
+      "name": "aMu_J_dependence.m",
+      "filePath": "aMu_J_dependence.m",
+      "summary": "Script that adjusts the chemical potential mu to maintain constant electron density as the altermagnet coupling J is varied across the phase diagram, using a simple bisection-like iteration on the occupation number.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "parameter-scan"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Contains local functions calculate_density (counts occupied quasiparticle states) and XiLaMaker (shared FFLO band structure helper). Designed to ensure particle-number conservation along a J-scan."
+    },
+    {
+      "id": "function:aMu_J_dependence.m:calculate_density",
+      "type": "function",
+      "name": "calculate_density",
+      "filePath": "aMu_J_dependence.m",
+      "lineRange": [
+        55,
+        67
+      ],
+      "summary": "Counts the fraction of occupied quasiparticle states by checking the sign of the lower BdG branch Ek_d, returning the normalized particle density for use in chemical-potential self-consistency.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aMu_q_dependence.m",
+      "type": "file",
+      "name": "aMu_q_dependence.m",
+      "filePath": "aMu_q_dependence.m",
+      "summary": "Script that adjusts the chemical potential mu to maintain constant density as the FFLO momentum q is scanned over the 2D Brillouin zone, with a local calculate_density function operating on the Xi/Lambda quasiparticle structure.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "parameter-scan"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Parallel to aMu_J_dependence.m but scans q-space instead of J-space. The local calculate_density builds the Xi/Lambda decomposition inline."
+    },
+    {
+      "id": "function:aMu_q_dependence.m:calculate_density",
+      "type": "function",
+      "name": "calculate_density",
+      "filePath": "aMu_q_dependence.m",
+      "lineRange": [
+        63,
+        87
+      ],
+      "summary": "Computes the electron density at a given (mu, J, t, qx, qy) by constructing the Xi/Lambda FFLO band structure and counting occupied states.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:aNumberCalc.m",
+      "type": "file",
+      "name": "aNumberCalc.m",
+      "filePath": "aNumberCalc.m",
+      "summary": "Computes the Delta-dependence of the particle number (occupation) for s-wave, FFLO, and p+ip altermagnetic superconductors by explicit 4x4 BdG diagonalization, to verify particle-number conservation across competing phases.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "particle-number"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Contains local helper functions signeltEkJkMaker, singletgapsolver, and calculate_PenetrationDepth_Rho. Computes correl(1,1) + correl(3,3) as the diagonal BdG density matrix element for occupation counting."
+    },
+    {
+      "id": "function:aNumberCalc.m:singletgapsolver",
+      "type": "function",
+      "name": "singletgapsolver",
+      "filePath": "aNumberCalc.m",
+      "lineRange": [
+        185,
+        198
+      ],
+      "summary": "Analytic singlet gap equation solver: given ek, mu, Delta, Jk, and interaction U, returns ground-state energy, self-consistent Delta, anomalous correlator, and the minimum quasiparticle energy (BFS indicator).",
+      "tags": [
+        "physics-kernel",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:aNumberCalc_self.m",
+      "type": "file",
+      "name": "aNumberCalc_self.m",
+      "filePath": "aNumberCalc_self.m",
+      "summary": "Higher-resolution variant of aNumberCalc.m (N=1000) that uses self-consistent order parameters (Ds_self, Dp_self, Dff_self, q_self) loaded from external workspace variables, computing occupation numbers for s, FFLO, p+ip, d, and es-wave phases using Hbdg_solver.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "particle-number"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Depends on workspace variables (Ds_self, q_self, Dp_self, Dd_self, Des_self) that must be loaded before running. Contains copies of signeltEkJkMaker and singletgapsolver helper functions."
+    },
+    {
+      "id": "file:aPenetrationDepth_AMSC.m",
+      "type": "file",
+      "name": "aPenetrationDepth_AMSC.m",
+      "filePath": "aPenetrationDepth_AMSC.m",
+      "summary": "Computes the temperature-dependent London penetration depth lambda(T) and superfluid stiffness K(T) for s-wave, p+ip, and gapless FFLO altermagnetic superconductors using a linearized current-response method, with hardcoded self-consistent order parameters for three representative J values.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "penetration-depth"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses a continuum quadratic dispersion (ekq = -2t*(k+q)^2 - mu). Contains local FD and FD_prime functions. The gapless FF spectrum is precomputed outside the T loop for efficiency at N=1000."
+    },
+    {
+      "id": "function:aPenetrationDepth_AMSC.m:FD",
+      "type": "function",
+      "name": "FD",
+      "filePath": "aPenetrationDepth_AMSC.m",
+      "lineRange": [
+        206,
+        208
+      ],
+      "summary": "Fermi-Dirac distribution 1/(exp(en/T)+1) for use in penetration depth temperature integrals.",
+      "tags": [
+        "utility",
+        "physics-kernel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aPhaseDiagramfin.m",
+      "type": "file",
+      "name": "aPhaseDiagramfin.m",
+      "filePath": "aPhaseDiagramfin.m",
+      "summary": "Comprehensive phase diagram script scanning (J, V) and (J, U) parameter space for all competing phases (s-wave, FFLO, p+ip, es-wave, d-wave) using analytic gap equations, producing condensation energy phase boundary contours and BFS (Bogoliubov-Fermi surface) maps.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "phase-diagram"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Contains local functions e_k, J_k, findBFS, and FFgapsolver (the FFLO analytic solver). The FFLO scan uses two strategies: minimum occupied energy and minimum condensation energy to find q."
+    },
+    {
+      "id": "function:aPhaseDiagramfin.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "aPhaseDiagramfin.m",
+      "lineRange": [
+        891,
+        911
+      ],
+      "summary": "Local FFLO gap equation solver that computes the occupied energy E_0 via particle-hole symmetry (summing positive quasiparticle energies), the condensation energy condff, and the self-consistent gap Dffout for given Xi, Lambda, Delta inputs.",
+      "tags": [
+        "physics-kernel",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:aQuasiparticleAmplitudeBDGGapStructure.m",
+      "type": "file",
+      "name": "aQuasiparticleAmplitudeBDGGapStructure.m",
+      "filePath": "aQuasiparticleAmplitudeBDGGapStructure.m",
+      "summary": "Visualization script that plots BdG quasiparticle band structures with electron/hole amplitude color mixing for 1D BCS and 2D Zeeman-split altermagnetic superconductors, illustrating the quasiparticle character along high-symmetry paths.",
+      "tags": [
+        "entry-point",
+        "visualization",
+        "spectral"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Primarily a plotting script; constructs amplitude-weighted RGB colors from BdG eigenvectors to show electron vs hole character. References EEE1-EEE4 from workspace (produced by aFFLO_eig_qc.m)."
+    },
+    {
+      "id": "file:aRuO2AMSC.m",
+      "type": "file",
+      "name": "aRuO2AMSC.m",
+      "filePath": "aRuO2AMSC.m",
+      "summary": "Original self-consistent phase diagram script for the RuO2 altermagnetic superconductor model using a continuum (quadratic) dispersion, scanning many pairing channels (s, p+ip, p-, px, py, mix) with spin-1 and spin-2 sublattice indices over a (Vs, Vp) interaction parameter space.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "phase-diagram"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses a continuum k^2 dispersion rather than tight-binding. Contains the most complete set of pairing channels with both spin-11 and spin-22 components tracked separately. Calls the external gap_eq_solver function (not included in this batch, likely a separate file)."
+    },
+    {
+      "id": "file:aRuO2AMSCedited.m",
+      "type": "file",
+      "name": "aRuO2AMSCedited.m",
+      "filePath": "aRuO2AMSCedited.m",
+      "summary": "Edited version of the RuO2 AMSC phase diagram script using tight-binding dispersion (cos(k)) instead of continuum, scanning (Vs, Vp) interaction parameters with calls to the external Hbdg_solver function for self-consistent gap calculations.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "phase-diagram"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Key difference from aRuO2AMSC.m: uses tight-binding -cos(kx)-cos(ky) dispersion and delegates BdG diagonalization to Hbdg_solver rather than inlining it. Calls gap_eq_solver (external)."
+    },
+    {
+      "id": "file:aStrainedRuO2Zeeman.m",
+      "type": "file",
+      "name": "aStrainedRuO2Zeeman.m",
+      "filePath": "aStrainedRuO2Zeeman.m",
+      "summary": "Exploratory script that applies various momentum-dependent symmetry-breaking (Rashba-like, cubic spin-orbit) fields to the continuum RuO2 BdG Hamiltonian in the normal state, computing the Fermi-Dirac weighted spectral correlators without a pairing term.",
+      "tags": [
+        "entry-point",
+        "analysis",
+        "spectral"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "No superconducting gap: computes the correlated normal-state occupancy matrix under multiple spin-orbit coupling forms (linear, cubic). Uses pauli matrix helper (pauli function, not defined in this file)."
+    },
+    {
+      "id": "file:aStrainedRuO2brokenTRS.m",
+      "type": "file",
+      "name": "aStrainedRuO2brokenTRS.m",
+      "filePath": "aStrainedRuO2brokenTRS.m",
+      "summary": "Script studying TRS-broken p-wave superconductivity in a strained RuO2 model using a k·p Hamiltonian with symmetry-breaking strain terms, scanning the phase difference phi between spin-up and spin-down Cooper pairs to find the energetically preferred configuration.",
+      "tags": [
+        "analysis",
+        "p-wave",
+        "trs-breaking",
+        "strain",
+        "bdg"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses continuous k·p (quadratic dispersion) rather than tight-binding; Pauli matrices via pauli() helper for the 4x4 BdG Hamiltonian."
+    },
+    {
+      "id": "file:aSuperfluidDensity_BFS.m",
+      "type": "file",
+      "name": "aSuperfluidDensity_BFS.m",
+      "filePath": "aSuperfluidDensity_BFS.m",
+      "summary": "Computes superfluid density in the Fulde-Ferrell (FF) phase and s-wave phase for the BFS (Bogoliubov Fermi Surface) scenario by evaluating the second-order free-energy curvature with respect to pair momentum q, with local helper functions for Fermi-Dirac, normal density, and gap-structure computations.",
+      "tags": [
+        "superfluid-density",
+        "ff-phase",
+        "bfs",
+        "s-wave",
+        "analysis"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Defines nF, normal_density, XiLaMaker, and FFgapsolver as local MATLAB functions within the script section."
+    },
+    {
+      "id": "function:aSuperfluidDensity_BFS.m:nF",
+      "type": "function",
+      "name": "nF",
+      "filePath": "aSuperfluidDensity_BFS.m",
+      "lineRange": [
+        179,
+        181
+      ],
+      "summary": "Returns the Fermi-Dirac distribution 1/(1+exp(beta*(E-mu))).",
+      "tags": [
+        "utility",
+        "fermi-dirac",
+        "statistical-mechanics"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aSuperfluidDensity_BFS.m:normal_density",
+      "type": "function",
+      "name": "normal_density",
+      "filePath": "aSuperfluidDensity_BFS.m",
+      "lineRange": [
+        183,
+        190
+      ],
+      "summary": "Computes normal-state carrier density by counting occupied k-points where the dispersion is negative.",
+      "tags": [
+        "utility",
+        "carrier-density",
+        "normal-state"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aSuperfluidDensity_BFS.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "aSuperfluidDensity_BFS.m",
+      "lineRange": [
+        192,
+        208
+      ],
+      "summary": "Constructs the symmetric (Xi) and antisymmetric (Lambda) combinations of the shifted dispersions xi(k+q) and xi(-k+q) needed for FFLO gap equations.",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion",
+        "tight-binding"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:aSuperfluidDensity_BFS.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "aSuperfluidDensity_BFS.m",
+      "lineRange": [
+        210,
+        229
+      ],
+      "summary": "Solves the T=0 FFLO gap equation returning the ground-state energy E0 and self-consistent order parameter from the quasiparticle occupancies.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver",
+        "mean-field"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:a_pdes_phase_finiteTemp.m",
+      "type": "file",
+      "name": "a_pdes_phase_finiteTemp.m",
+      "filePath": "a_pdes_phase_finiteTemp.m",
+      "summary": "Computes the finite-temperature superfluid stiffness (penetration depth) for the p-wave (triplet) FFLO phase by scanning the pair momentum q at three points and numerically differentiating the free energy, then tracking Delta(T) and the superfluid stiffness K(0,T) as functions of temperature.",
+      "tags": [
+        "superfluid-density",
+        "p-wave",
+        "fflo",
+        "finite-temperature",
+        "penetration-depth"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses tanh-based finite-temperature gap equation (tripletFFgapsolver_finiteTemp) and log-sum-exp trick for numerical stability of free energy."
+    },
+    {
+      "id": "function:a_pdes_phase_finiteTemp.m:tripletXiLaMaker",
+      "type": "function",
+      "name": "tripletXiLaMaker",
+      "filePath": "a_pdes_phase_finiteTemp.m",
+      "lineRange": [
+        184,
+        202
+      ],
+      "summary": "Variant of XiLaMaker for triplet pairing: constructs Xi, Lambda, and the p-wave form factor |g(k+q)|^2 at finite pair momentum q.",
+      "tags": [
+        "utility",
+        "fflo",
+        "p-wave",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:a_pdes_phase_finiteTemp.m:tripletFFgapsolver_finiteTemp",
+      "type": "function",
+      "name": "tripletFFgapsolver_finiteTemp",
+      "filePath": "a_pdes_phase_finiteTemp.m",
+      "lineRange": [
+        204,
+        231
+      ],
+      "summary": "Solves the finite-temperature triplet FFLO gap equation using tanh factors and computes the free energy via log-sum-exp for numerical stability.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "p-wave",
+        "finite-temperature",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:aaaa.m",
+      "type": "file",
+      "name": "aaaa.m",
+      "filePath": "aaaa.m",
+      "summary": "Scratch/exploration script that scans the FFLO pair momentum q for an s-wave order parameter at various Delta values using Hbdg_solver, plotting the energy minimum to identify the optimal q vector.",
+      "tags": [
+        "analysis",
+        "fflo",
+        "s-wave",
+        "q-scan",
+        "scratch"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:abandgapSC.m",
+      "type": "file",
+      "name": "abandgapSC.m",
+      "filePath": "abandgapSC.m",
+      "summary": "Computes and plots the BdG quasiparticle band structure along the high-symmetry path Gamma-X-M-Gamma-M-Y-Gamma for s-wave, chiral p-wave, and FFLO phases, displaying the bands analytically and via full matrix diagonalization for comparison.",
+      "tags": [
+        "band-structure",
+        "bdg",
+        "visualization",
+        "s-wave",
+        "p-wave"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Plots bands along the 2D Brillouin zone path by concatenating slices of the 2D energy arrays rather than using a dedicated path-generation routine."
+    },
+    {
+      "id": "file:affffphase.m",
+      "type": "file",
+      "name": "affffphase.m",
+      "filePath": "affffphase.m",
+      "summary": "Performs a 2D scan over pair momenta (qx, qy) for the FFLO s-wave state at each J value, computing the self-consistent order parameter and ground-state energy across the full q-space landscape using GPU-accelerated gap solving.",
+      "tags": [
+        "fflo",
+        "q-scan",
+        "2d-scan",
+        "gpu",
+        "s-wave"
+      ],
+      "complexity": "complex",
+      "languageNotes": "FFgapsolver function uses gpuArray/gather for GPU acceleration of the BdG energy computation."
+    },
+    {
+      "id": "function:affffphase.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "affffphase.m",
+      "lineRange": [
+        125,
+        141
+      ],
+      "summary": "Constructs Xi and Lambda from the shifted dispersions for FFLO gap equations.",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:affffphase.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "affffphase.m",
+      "lineRange": [
+        144,
+        177
+      ],
+      "summary": "GPU-accelerated FFLO gap solver using chunked mean computations for numerical stability; returns condensation, correlation, and quasiparticle occupation.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver",
+        "gpu"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:affffphase.m:draw_gapstructure",
+      "type": "function",
+      "name": "draw_gapstructure",
+      "filePath": "affffphase.m",
+      "lineRange": [
+        179,
+        196
+      ],
+      "summary": "Plots the quasiparticle gap along the high-symmetry Brillouin zone path Gamma-X-M-Gamma-M-Y-Gamma.",
+      "tags": [
+        "visualization",
+        "gap-structure",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:affffphase.m:draw_toponodalstructure",
+      "type": "function",
+      "name": "draw_toponodalstructure",
+      "filePath": "affffphase.m",
+      "lineRange": [
+        198,
+        209
+      ],
+      "summary": "Visualizes the topological nodal structure by plotting zero-energy contours for different Fermi surfaces and gap factors.",
+      "tags": [
+        "visualization",
+        "nodal-structure",
+        "topology"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:affffphase.m:BFS_archiver",
+      "type": "function",
+      "name": "BFS_archiver",
+      "filePath": "affffphase.m",
+      "lineRange": [
+        211,
+        215
+      ],
+      "summary": "Identifies k-points with near-zero gap (Bogoliubov Fermi Surface) by thresholding both gap bands.",
+      "tags": [
+        "utility",
+        "bfs",
+        "gap-analysis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:asphase_finiteTemp.m",
+      "type": "file",
+      "name": "asphase_finiteTemp.m",
+      "filePath": "asphase_finiteTemp.m",
+      "summary": "Computes the finite-temperature superfluid stiffness for the s-wave FFLO state by numerically differentiating the free energy with respect to pair momentum q, tracing Delta(T), K(0,T), and the London penetration depth lambda(T).",
+      "tags": [
+        "superfluid-density",
+        "s-wave",
+        "fflo",
+        "finite-temperature",
+        "penetration-depth"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:asphase_finiteTemp.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "asphase_finiteTemp.m",
+      "lineRange": [
+        244,
+        260
+      ],
+      "summary": "Constructs symmetric and antisymmetric dispersions Xi and Lambda for finite-momentum pairing.",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:asphase_finiteTemp.m:FFgapsolver_finiteTemp",
+      "type": "function",
+      "name": "FFgapsolver_finiteTemp",
+      "filePath": "asphase_finiteTemp.m",
+      "lineRange": [
+        262,
+        287
+      ],
+      "summary": "Finite-temperature s-wave FFLO gap solver using tanh factors; computes free energy via log-sum-exp.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "s-wave",
+        "finite-temperature",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:asphase_finiteTemp.m:calculate_PenetrationDepth_FD",
+      "type": "function",
+      "name": "calculate_PenetrationDepth_FD",
+      "filePath": "asphase_finiteTemp.m",
+      "lineRange": [
+        290,
+        305
+      ],
+      "summary": "Computes the electromagnetic kernel K(0,T) for the London penetration depth using the Fermi-Dirac derivative over positive-energy quasiparticle states.",
+      "tags": [
+        "penetration-depth",
+        "superfluid-density",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:asphase_finiteTemp_nonself.m",
+      "type": "file",
+      "name": "asphase_finiteTemp_nonself.m",
+      "filePath": "asphase_finiteTemp_nonself.m",
+      "summary": "Non-self-consistent variant of the s-wave finite-temperature superfluid stiffness calculation: fixes Delta at a constant value and evaluates the free-energy second derivative at the pre-computed FFLO momentum q_self.",
+      "tags": [
+        "superfluid-density",
+        "s-wave",
+        "fflo",
+        "non-self-consistent",
+        "finite-temperature"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Delta is held fixed (Delta=0.22) rather than iterated to self-consistency, allowing faster temperature scans."
+    },
+    {
+      "id": "function:asphase_finiteTemp_nonself.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "asphase_finiteTemp_nonself.m",
+      "lineRange": [
+        110,
+        126
+      ],
+      "summary": "Constructs Xi and Lambda for finite-momentum pairing (local copy).",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:asphase_finiteTemp_nonself.m:FFgapsolver_finiteTemp",
+      "type": "function",
+      "name": "FFgapsolver_finiteTemp",
+      "filePath": "asphase_finiteTemp_nonself.m",
+      "lineRange": [
+        128,
+        151
+      ],
+      "summary": "Finite-temperature FFLO gap solver (returns Dffout and free energy F); local copy used for non-self-consistent temperature scan.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "finite-temperature",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:aspindrawer.m",
+      "type": "file",
+      "name": "aspindrawer.m",
+      "filePath": "aspindrawer.m",
+      "summary": "Visualizes the spin texture of the altermagnetic normal and p-wave superconducting states by computing the Bloch-sphere spin expectation values (sigma_x, sigma_y, sigma_z) for the two Fermi surface sheets across the full Brillouin zone and projecting onto the sphere.",
+      "tags": [
+        "spin-texture",
+        "visualization",
+        "altermagnetism",
+        "p-wave",
+        "bloch-sphere"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses a continuous k·p Hamiltonian (quadratic dispersion) rather than tight-binding lattice, and requires CustomColormap.mat for spin-polarization color maps."
+    },
+    {
+      "id": "file:asuperfluidDensity_SWAVE.m",
+      "type": "file",
+      "name": "asuperfluidDensity_SWAVE.m",
+      "filePath": "asuperfluidDensity_SWAVE.m",
+      "summary": "Computes the zero-temperature superfluid density for the s-wave FFLO state at each J by evaluating the second-order free energy derivative at the self-consistent pair momentum; also contains helper functions for singlet/triplet gap solvers and nodal structure visualization.",
+      "tags": [
+        "superfluid-density",
+        "s-wave",
+        "fflo",
+        "analysis"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:asuperfluidDensity_SWAVE.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "asuperfluidDensity_SWAVE.m",
+      "lineRange": [
+        65,
+        81
+      ],
+      "summary": "Constructs Xi and Lambda from shifted dispersions for FFLO gap equations.",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:asuperfluidDensity_SWAVE.m:FFgapsolver_finiteTemp",
+      "type": "function",
+      "name": "FFgapsolver_finiteTemp",
+      "filePath": "asuperfluidDensity_SWAVE.m",
+      "lineRange": [
+        83,
+        98
+      ],
+      "summary": "Finite-temperature s-wave FFLO gap solver using tanh factors.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:asuperfluidDensity_SWAVE.m:signeltEkJkMaker",
+      "type": "function",
+      "name": "signeltEkJkMaker",
+      "filePath": "asuperfluidDensity_SWAVE.m",
+      "lineRange": [
+        116,
+        121
+      ],
+      "summary": "Computes spin-split BdG quasiparticle energies Ek_u and Ek_d for singlet pairing with altermagnetic splitting.",
+      "tags": [
+        "utility",
+        "bdg",
+        "quasiparticle",
+        "s-wave"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:asuperfluidDensity_SWAVE.m:singletgapsolver",
+      "type": "function",
+      "name": "singletgapsolver",
+      "filePath": "asuperfluidDensity_SWAVE.m",
+      "lineRange": [
+        123,
+        136
+      ],
+      "summary": "T=0 singlet gap solver returning the ground-state energy, self-consistent Delta, correlation function, and minimum quasiparticle gap (BFS indicator).",
+      "tags": [
+        "gap-equation",
+        "s-wave",
+        "solver",
+        "singlet"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:asuperfluidDensity_SWAVE.m:singletgapsolver_finiteTemp",
+      "type": "function",
+      "name": "singletgapsolver_finiteTemp",
+      "filePath": "asuperfluidDensity_SWAVE.m",
+      "lineRange": [
+        138,
+        151
+      ],
+      "summary": "Finite-temperature singlet gap solver using tanh thermal factors.",
+      "tags": [
+        "gap-equation",
+        "s-wave",
+        "finite-temperature",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:asuperfluidDensity_SWAVE.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "asuperfluidDensity_SWAVE.m",
+      "lineRange": [
+        153,
+        172
+      ],
+      "summary": "T=0 FFLO gap solver returning ground-state energy, self-consistent Delta, and Bogoliubov quasiparticle occupancy indicators.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:awhywhy.m",
+      "type": "file",
+      "name": "awhywhy.m",
+      "filePath": "awhywhy.m",
+      "summary": "Full phase diagram script at mu=-1.2 that self-consistently solves for s-wave, FFLO, p-wave, extended-s-wave, and d-wave order parameters over a 2D grid of (J, V) parameters, then identifies the ground state phase and plots the resulting phase diagram, gap structures, and pairing amplitudes.",
+      "tags": [
+        "phase-diagram",
+        "multi-phase",
+        "self-consistent",
+        "analysis",
+        "visualization"
+      ],
+      "complexity": "complex",
+      "languageNotes": "The most comprehensive phase scan script; contains local copies of all relevant solvers (singletgapsolver, FFgapsolver, tripletgapsolver, XiLaMaker) and multiple drawing utilities."
+    },
+    {
+      "id": "function:awhywhy.m:singletgapsolver",
+      "type": "function",
+      "name": "singletgapsolver",
+      "filePath": "awhywhy.m",
+      "lineRange": [
+        442,
+        455
+      ],
+      "summary": "Singlet BdG gap solver supporting arbitrary pairing form factors gk and gka; used for s-wave, extended-s, and d-wave channels.",
+      "tags": [
+        "gap-equation",
+        "singlet",
+        "solver",
+        "generalized"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:awhywhy.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "awhywhy.m",
+      "lineRange": [
+        458,
+        474
+      ],
+      "summary": "Constructs Xi and Lambda for FFLO shifted dispersions.",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:awhywhy.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "awhywhy.m",
+      "lineRange": [
+        477,
+        493
+      ],
+      "summary": "FFLO gap solver returning ground-state energy, self-consistent Delta, BdG correlation, and quasiparticle occupancy indicators.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:awhywhy.m:tripletgapsolver",
+      "type": "function",
+      "name": "tripletgapsolver",
+      "filePath": "awhywhy.m",
+      "lineRange": [
+        496,
+        507
+      ],
+      "summary": "T=0 triplet (p-wave) gap solver computing spin-channel energies Ek_u and Ek_d with separate pairing amplitudes for each channel.",
+      "tags": [
+        "gap-equation",
+        "p-wave",
+        "solver",
+        "triplet"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:awhywhy.m:draw_gapstructure",
+      "type": "function",
+      "name": "draw_gapstructure",
+      "filePath": "awhywhy.m",
+      "lineRange": [
+        510,
+        540
+      ],
+      "summary": "Plots both positive and negative quasiparticle gap bands along the high-symmetry path.",
+      "tags": [
+        "visualization",
+        "gap-structure",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:code/a_pdes_wave.m",
+      "type": "file",
+      "name": "a_pdes_wave.m",
+      "filePath": "code/a_pdes_wave.m",
+      "summary": "Earlier version of the p-wave finite-temperature superfluid stiffness calculation (stored in the code/ subdirectory), scanning q-space to compute the free energy curvature and penetration depth for the triplet FFLO phase.",
+      "tags": [
+        "superfluid-density",
+        "p-wave",
+        "fflo",
+        "finite-temperature",
+        "archived"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:code/affphase.m",
+      "type": "file",
+      "name": "affphase.m",
+      "filePath": "code/affphase.m",
+      "summary": "Earlier/archived version of the full phase diagram script (code/ subdirectory), computing self-consistent order parameters for all competing SC phases over the (J, V) parameter space and plotting the winning phase map.",
+      "tags": [
+        "phase-diagram",
+        "multi-phase",
+        "archived",
+        "self-consistent",
+        "analysis"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:code/affphase.m:singletgapsolver",
+      "type": "function",
+      "name": "singletgapsolver",
+      "filePath": "code/affphase.m",
+      "lineRange": [
+        442,
+        455
+      ],
+      "summary": "Generalized singlet gap solver with form factor arguments, archived version.",
+      "tags": [
+        "gap-equation",
+        "singlet",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:code/affphase.m:tripletgapsolver",
+      "type": "function",
+      "name": "tripletgapsolver",
+      "filePath": "code/affphase.m",
+      "lineRange": [
+        496,
+        507
+      ],
+      "summary": "Triplet (p-wave) gap solver, archived version.",
+      "tags": [
+        "gap-equation",
+        "p-wave",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:code/affphase.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "code/affphase.m",
+      "lineRange": [
+        477,
+        493
+      ],
+      "summary": "FFLO gap solver, archived version.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:code/asphase.m",
+      "type": "file",
+      "name": "asphase.m",
+      "filePath": "code/asphase.m",
+      "summary": "Archived s-wave phase script at mu=-1.8 computing FFLO self-consistent q and the quasiparticle band structure; stores output in E0ff_arc and q_self arrays for downstream analysis.",
+      "tags": [
+        "fflo",
+        "s-wave",
+        "archived",
+        "phase-diagram",
+        "q-scan"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:code/asphase.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "code/asphase.m",
+      "lineRange": [
+        148,
+        164
+      ],
+      "summary": "Constructs Xi and Lambda for FFLO gap equations, archived version.",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:code/asphase.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "code/asphase.m",
+      "lineRange": [
+        167,
+        183
+      ],
+      "summary": "T=0 FFLO gap solver, archived version.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:code/awhy.m",
+      "type": "file",
+      "name": "awhy.m",
+      "filePath": "code/awhy.m",
+      "summary": "Archived phase diagram script at mu=-1.2 with an extended plotting section covering phase maps, pairing amplitudes, pair correlations, BFS areas, and nodal structures for all competing SC phases.",
+      "tags": [
+        "phase-diagram",
+        "multi-phase",
+        "archived",
+        "visualization",
+        "analysis"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Most elaborate plotting code in the project; introduces draw_singlettoponodalstructure, draw_triplettoponodalstructure, and draw_FFtoponodalstructure helper functions for visualizing topological nodal lines."
+    },
+    {
+      "id": "function:code/awhy.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "code/awhy.m",
+      "lineRange": [
+        680,
+        696
+      ],
+      "summary": "Full-output XiLaMaker returning xik1, Jk1, xik2, Jk2, Xi, Lambda for FFLO analysis.",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:code/awhy.m:singletgapsolver",
+      "type": "function",
+      "name": "singletgapsolver",
+      "filePath": "code/awhy.m",
+      "lineRange": [
+        711,
+        724
+      ],
+      "summary": "Generalized singlet gap solver with form factor arguments.",
+      "tags": [
+        "gap-equation",
+        "singlet",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:code/awhy.m:tripletgapsolver",
+      "type": "function",
+      "name": "tripletgapsolver",
+      "filePath": "code/awhy.m",
+      "lineRange": [
+        698,
+        709
+      ],
+      "summary": "Triplet (p-wave) gap solver, extended version.",
+      "tags": [
+        "gap-equation",
+        "p-wave",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:code/awhy.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "code/awhy.m",
+      "lineRange": [
+        725,
+        746
+      ],
+      "summary": "FFLO gap solver returning correlation function for pair-correlation visualization.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:code/awhy.m:draw_singlettoponodalstructure",
+      "type": "function",
+      "name": "draw_singlettoponodalstructure",
+      "filePath": "code/awhy.m",
+      "lineRange": [
+        767,
+        790
+      ],
+      "summary": "Draws the topological nodal structure of singlet SC phases by plotting zero-energy contours of the form factor, Fermi surface, and spin-split quasiparticle bands.",
+      "tags": [
+        "visualization",
+        "nodal-structure",
+        "singlet",
+        "topology"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:code/awhy.m:draw_FFtoponodalstructure",
+      "type": "function",
+      "name": "draw_FFtoponodalstructure",
+      "filePath": "code/awhy.m",
+      "lineRange": [
+        792,
+        813
+      ],
+      "summary": "Draws the FFLO topological nodal structure showing the shifted Fermi surface contours at k+q and k-q.",
+      "tags": [
+        "visualization",
+        "nodal-structure",
+        "fflo",
+        "topology"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:code/awhy.m:draw_triplettoponodalstructure",
+      "type": "function",
+      "name": "draw_triplettoponodalstructure",
+      "filePath": "code/awhy.m",
+      "lineRange": [
+        815,
+        853
+      ],
+      "summary": "Draws the topological nodal structure for triplet (p-wave) SC by plotting zero contours of Re(g) and Im(g) separately for px and py channels.",
+      "tags": [
+        "visualization",
+        "nodal-structure",
+        "p-wave",
+        "topology"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:code/awhy.m:BFS_archiver",
+      "type": "function",
+      "name": "BFS_archiver",
+      "filePath": "code/awhy.m",
+      "lineRange": [
+        855,
+        860
+      ],
+      "summary": "Identifies negative-gap k-points (Bogoliubov Fermi Surface) using strict sign comparison.",
+      "tags": [
+        "utility",
+        "bfs",
+        "topology"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:gap_eq_solver.m",
+      "type": "file",
+      "name": "gap_eq_solver.m",
+      "filePath": "gap_eq_solver.m",
+      "summary": "Core reusable BdG gap-equation solver function that constructs the 4x4 BdG Hamiltonian on the k-grid and computes the self-consistent order parameter, ground-state energy, condensation amplitude, and correlation function for s-wave and all p-wave pairing symmetries (p+, p-, px, py, mix).",
+      "tags": [
+        "gap-equation",
+        "bdg",
+        "solver",
+        "service",
+        "reusable"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Dispatches to different pairing channels via a string 'type' argument; the tight-binding BdG uses 4x4 blocks combining he and hh via blkdiag."
+    },
+    {
+      "id": "function:gap_eq_solver.m:gap_eq_solver",
+      "type": "function",
+      "name": "gap_eq_solver",
+      "filePath": "gap_eq_solver.m",
+      "lineRange": [
+        1,
+        101
+      ],
+      "summary": "Main exported function: iterates over a range of trial Delta values, solves the BdG Hamiltonian at each k-point, and returns the self-consistent Delta, total energy, condensation amplitude, correlation tensor, and band energies for any requested pairing symmetry.",
+      "tags": [
+        "gap-equation",
+        "bdg",
+        "solver",
+        "entry-point"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:gap_eq_solver2.m",
+      "type": "file",
+      "name": "gap_eq_solver2.m",
+      "filePath": "gap_eq_solver2.m",
+      "summary": "Self-consistency-iterated variant of gap_eq_solver: runs 10000 fixed-point iterations on the order parameter Delta from a given starting value, converging to the self-consistent solution rather than scanning a range of input values.",
+      "tags": [
+        "gap-equation",
+        "bdg",
+        "solver",
+        "self-consistent",
+        "reusable"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:gap_eq_solver2.m:gap_eq_solver2",
+      "type": "function",
+      "name": "gap_eq_solver2",
+      "filePath": "gap_eq_solver2.m",
+      "lineRange": [
+        1,
+        99
+      ],
+      "summary": "Main exported function: runs 10000 self-consistency iterations of the BdG gap equation, returning the converged total energy, correlation function, and band energies.",
+      "tags": [
+        "gap-equation",
+        "bdg",
+        "solver",
+        "iterative"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:hoppingMat_altermagnet.m",
+      "type": "file",
+      "name": "hoppingMat_altermagnet.m",
+      "filePath": "hoppingMat_altermagnet.m",
+      "summary": "Constructs the real-space altermagnetic tight-binding Hamiltonian on an NxN lattice with periodic boundary conditions, provides on-site singlet (s-wave) and nearest-neighbor triplet (p-wave) pairing matrices, assembles the full BdG Hamiltonian, and performs a fast Fourier transform to the k-space representation for cross-validation.",
+      "tags": [
+        "hopping-matrix",
+        "tight-binding",
+        "altermagnetism",
+        "bdg",
+        "utility"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses 4th-rank tensor indexing (N,N,N,N) for the hopping matrix before reshaping to (N^2,N^2); fastFT applies 2D FFT via sequential 1D transforms along each tensor dimension pair."
+    },
+    {
+      "id": "function:hoppingMat_altermagnet.m:hopMat_altermag",
+      "type": "function",
+      "name": "hopMat_altermag",
+      "filePath": "hoppingMat_altermagnet.m",
+      "lineRange": [
+        93,
+        165
+      ],
+      "summary": "Builds the 4th-rank real-space hopping tensor for spin-up or spin-down electrons with PBC; includes NN hopping t and NNN altermagnetic hopping J with spin-dependent sign.",
+      "tags": [
+        "hopping-matrix",
+        "altermagnetism",
+        "tight-binding",
+        "pbc"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:hoppingMat_altermagnet.m:onsitesinglet",
+      "type": "function",
+      "name": "onsitesinglet",
+      "filePath": "hoppingMat_altermagnet.m",
+      "lineRange": [
+        167,
+        174
+      ],
+      "summary": "Constructs the on-site singlet (s-wave) pairing matrix Delta_s * delta_ij.",
+      "tags": [
+        "pairing",
+        "s-wave",
+        "lattice"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:hoppingMat_altermagnet.m:nntriplet",
+      "type": "function",
+      "name": "nntriplet",
+      "filePath": "hoppingMat_altermagnet.m",
+      "lineRange": [
+        176,
+        201
+      ],
+      "summary": "Constructs the nearest-neighbor triplet (p-wave) pairing matrix with imaginary hopping in x and real hopping in y, implementing chiral px+ipy symmetry with PBC.",
+      "tags": [
+        "pairing",
+        "p-wave",
+        "lattice",
+        "pbc"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:hoppingMat_altermagnet.m:latticeBdG",
+      "type": "function",
+      "name": "latticeBdG",
+      "filePath": "hoppingMat_altermagnet.m",
+      "lineRange": [
+        203,
+        299
+      ],
+      "summary": "Assembles the full 2N^2 x 2N^2 lattice BdG Hamiltonian combining spin-up and spin-down hopping blocks with altermagnetic NNN coupling and PBC.",
+      "tags": [
+        "bdg",
+        "lattice",
+        "hopping-matrix",
+        "assembly"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:hoppingMat_altermagnet.m:fastFT",
+      "type": "function",
+      "name": "fastFT",
+      "filePath": "hoppingMat_altermagnet.m",
+      "lineRange": [
+        301,
+        307
+      ],
+      "summary": "Performs a 2D Fourier transform of the real-space hopping tensor by applying sequential 1D FFT/IFFT along the four tensor dimensions.",
+      "tags": [
+        "fourier-transform",
+        "utility",
+        "k-space"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:hoppingMat_altermagnet.m:fastFTbdg",
+      "type": "function",
+      "name": "fastFTbdg",
+      "filePath": "hoppingMat_altermagnet.m",
+      "lineRange": [
+        309,
+        313
+      ],
+      "summary": "Applies the 2D Fourier transform to the BdG Hamiltonian tensor (6-dimensional) for k-space analysis.",
+      "tags": [
+        "fourier-transform",
+        "bdg",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:q_test_s.m",
+      "type": "file",
+      "name": "q_test_s.m",
+      "filePath": "q_test_s.m",
+      "summary": "Scans the 2D pair-momentum (qx, qy) space over a [-pi/2, pi/2]^2 grid to find the optimal FFLO momentum for the s-wave state; saves E0(q) and Delta(q) maps as PNG figures.",
+      "tags": [
+        "q-scan",
+        "s-wave",
+        "fflo",
+        "2d-scan",
+        "visualization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:superfluid_density_qc.m",
+      "type": "file",
+      "name": "superfluid_density_qc.m",
+      "filePath": "superfluid_density_qc.m",
+      "summary": "Computes the superfluid density for the FFLO s-wave state near the self-consistent pair momentum q_self using a second-order numerical derivative of the ground-state energy, then plots the optimal q landscape and the superfluid density tensor components.",
+      "tags": [
+        "superfluid-density",
+        "fflo",
+        "s-wave",
+        "q-scan",
+        "analysis"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:superfluid_density_qc.m:FFgapsolver",
+      "type": "function",
+      "name": "FFgapsolver",
+      "filePath": "superfluid_density_qc.m",
+      "lineRange": [
+        106,
+        125
+      ],
+      "summary": "T=0 FFLO gap solver (local copy) returning E0, Delta, and Ek.",
+      "tags": [
+        "gap-equation",
+        "fflo",
+        "solver"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:superfluid_density_qc.m:XiLaMaker",
+      "type": "function",
+      "name": "XiLaMaker",
+      "filePath": "superfluid_density_qc.m",
+      "lineRange": [
+        127,
+        143
+      ],
+      "summary": "Constructs Xi and Lambda for finite-momentum pairing (local copy).",
+      "tags": [
+        "utility",
+        "fflo",
+        "dispersion"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:Alterdispersion.m",
+      "target": "function:Alterdispersion.m:Alterdispersion",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:Alterdispersion.m",
+      "target": "function:Alterdispersion.m:Alterdispersion",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:Hbdg_solver.m",
+      "target": "function:Hbdg_solver.m:Hbdg_solver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:Hbdg_solver.m",
+      "target": "function:Hbdg_solver.m:Hbdg_solver",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:SymmB_gap_eq_solver.m",
+      "target": "function:SymmB_gap_eq_solver.m:SymmB_gap_eq_solver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:SymmB_gap_eq_solver.m",
+      "target": "function:SymmB_gap_eq_solver.m:SymmB_gap_eq_solver",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:aAMSC_FFLO_REMASTER.m",
+      "target": "function:aAMSC_FFLO_REMASTER.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aAMSC_FFLO_REMASTER.m",
+      "target": "function:aAMSC_FFLO_REMASTER.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aAMSC_FFLO_REMASTER.m",
+      "target": "function:aAMSC_FFLO_REMASTER.m:colorlim",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aInAndOut.m",
+      "target": "function:aInAndOut.m:e_k",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aInAndOut.m",
+      "target": "function:aInAndOut.m:J_k",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aInAndOut.m",
+      "target": "function:aInAndOut.m:findBFS",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aLONDON_RESPONSE.m",
+      "target": "function:aLONDON_RESPONSE.m:FSmasking",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aLONDON_RESPONSE.m",
+      "target": "function:aLONDON_RESPONSE.m:LONDON_RESPONSE_TENSOR_singlet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aMu_J_dependence.m",
+      "target": "function:aMu_J_dependence.m:calculate_density",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aMu_q_dependence.m",
+      "target": "function:aMu_q_dependence.m:calculate_density",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aNumberCalc.m",
+      "target": "function:aNumberCalc.m:singletgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aBCS_penetrationdept.m",
+      "target": "function:aBCS_penetrationdept.m:FD",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aPenetrationDepth_AMSC.m",
+      "target": "function:aPenetrationDepth_AMSC.m:FD",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aPhaseDiagramfin.m",
+      "target": "function:aPhaseDiagramfin.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aAMSC_FFLO.m",
+      "target": "file:Hbdg_solver.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:aAMSC_Jscan.m",
+      "target": "file:Hbdg_solver.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:aNumberCalc_self.m",
+      "target": "file:Hbdg_solver.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:aRuO2AMSCedited.m",
+      "target": "file:Hbdg_solver.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:aAMSC_FFLO.m",
+      "target": "file:aAMSC_FFLO_REMASTER.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:aRuO2AMSCedited.m",
+      "target": "file:aRuO2AMSC.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:aNumberCalc_self.m",
+      "target": "file:aNumberCalc.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:aPenetrationDepth_AMSC.m",
+      "target": "file:aBCS_penetrationdept.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:aQuasiparticleAmplitudeBDGGapStructure.m",
+      "target": "file:aFFLO_eig_qc.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:aPhaseDiagramfin.m",
+      "target": "file:aInAndOut.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:aStrainedRuO2Zeeman.m",
+      "target": "file:SymmB_gap_eq_solver.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:aSuperfluidDensity_BFS.m",
+      "target": "function:aSuperfluidDensity_BFS.m:nF",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aSuperfluidDensity_BFS.m",
+      "target": "function:aSuperfluidDensity_BFS.m:normal_density",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aSuperfluidDensity_BFS.m",
+      "target": "function:aSuperfluidDensity_BFS.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aSuperfluidDensity_BFS.m",
+      "target": "function:aSuperfluidDensity_BFS.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:a_pdes_phase_finiteTemp.m",
+      "target": "function:a_pdes_phase_finiteTemp.m:tripletXiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:a_pdes_phase_finiteTemp.m",
+      "target": "function:a_pdes_phase_finiteTemp.m:tripletFFgapsolver_finiteTemp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:affffphase.m",
+      "target": "function:affffphase.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:affffphase.m",
+      "target": "function:affffphase.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:affffphase.m",
+      "target": "function:affffphase.m:draw_gapstructure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:affffphase.m",
+      "target": "function:affffphase.m:draw_toponodalstructure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:affffphase.m",
+      "target": "function:affffphase.m:BFS_archiver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asphase_finiteTemp.m",
+      "target": "function:asphase_finiteTemp.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asphase_finiteTemp.m",
+      "target": "function:asphase_finiteTemp.m:FFgapsolver_finiteTemp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asphase_finiteTemp.m",
+      "target": "function:asphase_finiteTemp.m:calculate_PenetrationDepth_FD",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asphase_finiteTemp_nonself.m",
+      "target": "function:asphase_finiteTemp_nonself.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asphase_finiteTemp_nonself.m",
+      "target": "function:asphase_finiteTemp_nonself.m:FFgapsolver_finiteTemp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asuperfluidDensity_SWAVE.m",
+      "target": "function:asuperfluidDensity_SWAVE.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asuperfluidDensity_SWAVE.m",
+      "target": "function:asuperfluidDensity_SWAVE.m:FFgapsolver_finiteTemp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asuperfluidDensity_SWAVE.m",
+      "target": "function:asuperfluidDensity_SWAVE.m:signeltEkJkMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asuperfluidDensity_SWAVE.m",
+      "target": "function:asuperfluidDensity_SWAVE.m:singletgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asuperfluidDensity_SWAVE.m",
+      "target": "function:asuperfluidDensity_SWAVE.m:singletgapsolver_finiteTemp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:asuperfluidDensity_SWAVE.m",
+      "target": "function:asuperfluidDensity_SWAVE.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:awhywhy.m",
+      "target": "function:awhywhy.m:singletgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:awhywhy.m",
+      "target": "function:awhywhy.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:awhywhy.m",
+      "target": "function:awhywhy.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:awhywhy.m",
+      "target": "function:awhywhy.m:tripletgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:awhywhy.m",
+      "target": "function:awhywhy.m:draw_gapstructure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/affphase.m",
+      "target": "function:code/affphase.m:singletgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/affphase.m",
+      "target": "function:code/affphase.m:tripletgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/affphase.m",
+      "target": "function:code/affphase.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/asphase.m",
+      "target": "function:code/asphase.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/asphase.m",
+      "target": "function:code/asphase.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/awhy.m",
+      "target": "function:code/awhy.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/awhy.m",
+      "target": "function:code/awhy.m:singletgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/awhy.m",
+      "target": "function:code/awhy.m:tripletgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/awhy.m",
+      "target": "function:code/awhy.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/awhy.m",
+      "target": "function:code/awhy.m:draw_singlettoponodalstructure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/awhy.m",
+      "target": "function:code/awhy.m:draw_FFtoponodalstructure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/awhy.m",
+      "target": "function:code/awhy.m:draw_triplettoponodalstructure",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:code/awhy.m",
+      "target": "function:code/awhy.m:BFS_archiver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gap_eq_solver.m",
+      "target": "function:gap_eq_solver.m:gap_eq_solver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gap_eq_solver.m",
+      "target": "function:gap_eq_solver.m:gap_eq_solver",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:gap_eq_solver2.m",
+      "target": "function:gap_eq_solver2.m:gap_eq_solver2",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:gap_eq_solver2.m",
+      "target": "function:gap_eq_solver2.m:gap_eq_solver2",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:hoppingMat_altermagnet.m",
+      "target": "function:hoppingMat_altermagnet.m:hopMat_altermag",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:hoppingMat_altermagnet.m",
+      "target": "function:hoppingMat_altermagnet.m:onsitesinglet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:hoppingMat_altermagnet.m",
+      "target": "function:hoppingMat_altermagnet.m:nntriplet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:hoppingMat_altermagnet.m",
+      "target": "function:hoppingMat_altermagnet.m:latticeBdG",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:hoppingMat_altermagnet.m",
+      "target": "function:hoppingMat_altermagnet.m:fastFT",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:hoppingMat_altermagnet.m",
+      "target": "function:hoppingMat_altermagnet.m:fastFTbdg",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:superfluid_density_qc.m",
+      "target": "function:superfluid_density_qc.m:FFgapsolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:superfluid_density_qc.m",
+      "target": "function:superfluid_density_qc.m:XiLaMaker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:aaaa.m",
+      "target": "file:gap_eq_solver.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:awhywhy.m",
+      "target": "file:code/awhy.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:affffphase.m",
+      "target": "file:code/affphase.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:asuperfluidDensity_SWAVE.m",
+      "target": "file:affffphase.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:aSuperfluidDensity_BFS.m",
+      "target": "file:affffphase.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:asphase_finiteTemp.m",
+      "target": "file:affffphase.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:asphase_finiteTemp_nonself.m",
+      "target": "file:affffphase.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:superfluid_density_qc.m",
+      "target": "file:affffphase.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:awhywhy.m",
+      "target": "file:affffphase.m",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:hoppingMat_altermagnet.m",
+      "target": "file:gap_eq_solver.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:gap_eq_solver2.m",
+      "target": "file:gap_eq_solver.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:code/asphase.m",
+      "target": "file:code/awhy.m",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:core-solvers",
+      "name": "Core Solvers",
+      "description": "Reusable BdG Hamiltonian and gap-equation solvers that form the computational foundation for all physics calculations in this codebase, including the altermagnetic dispersion and tight-binding construction.",
+      "nodeIds": [
+        "file:Hbdg_solver.m",
+        "file:gap_eq_solver.m",
+        "file:gap_eq_solver2.m",
+        "file:SymmB_gap_eq_solver.m",
+        "file:Alterdispersion.m",
+        "file:hoppingMat_altermagnet.m"
+      ]
+    },
+    {
+      "id": "layer:phase-diagram",
+      "name": "Phase Diagram Analysis",
+      "description": "Analysis scripts that scan multi-dimensional parameter spaces (J, V, U, mu) to compute self-consistent phase diagrams of competing superconducting orders in the RuO2 altermagnetic model.",
+      "nodeIds": [
+        "file:aAMSC_Jscan.m",
+        "file:aInAndOut.m",
+        "file:aPhaseDiagramfin.m",
+        "file:aRuO2AMSC.m",
+        "file:aRuO2AMSCedited.m",
+        "file:awhywhy.m",
+        "file:aMu_J_dependence.m",
+        "file:aMu_q_dependence.m",
+        "file:aNumberCalc.m",
+        "file:aNumberCalc_self.m",
+        "file:aStrainedRuO2brokenTRS.m",
+        "file:aStrainedRuO2Zeeman.m",
+        "file:aaaa.m"
+      ]
+    },
+    {
+      "id": "layer:fflo-analysis",
+      "name": "FFLO Analysis",
+      "description": "Scripts dedicated to Fulde-Ferrell-Larkin-Ovchinnikov physics: scanning Cooper-pair momentum space (qx, qy) to locate optimal FFLO momenta, energy landscapes, and quasiparticle gap closings.",
+      "nodeIds": [
+        "file:aAMSC_FFLO.m",
+        "file:aAMSC_FFLO_REMASTER.m",
+        "file:aFFLO_eig_qc.m",
+        "file:affffphase.m",
+        "file:q_test_s.m"
+      ]
+    },
+    {
+      "id": "layer:observables",
+      "name": "Observable Calculations",
+      "description": "Scripts computing experimentally measurable quantities for the altermagnetic superconductor: London penetration depth, superfluid density (including finite-temperature stiffness), and the electromagnetic response tensor.",
+      "nodeIds": [
+        "file:aBCS_penetrationdept.m",
+        "file:aPenetrationDepth_AMSC.m",
+        "file:aLONDON_RESPONSE.m",
+        "file:aSuperfluidDensity_BFS.m",
+        "file:a_pdes_phase_finiteTemp.m",
+        "file:asphase_finiteTemp.m",
+        "file:asphase_finiteTemp_nonself.m",
+        "file:asuperfluidDensity_SWAVE.m",
+        "file:superfluid_density_qc.m"
+      ]
+    },
+    {
+      "id": "layer:visualization",
+      "name": "Visualization & Spectral",
+      "description": "Scripts that generate plots of BdG quasiparticle band structures, electron/hole amplitude color maps, and spin-texture visualizations on the Bloch sphere for altermagnetic and p-wave superconducting states.",
+      "nodeIds": [
+        "file:abandgapSC.m",
+        "file:aspindrawer.m",
+        "file:aQuasiparticleAmplitudeBDGGapStructure.m"
+      ]
+    },
+    {
+      "id": "layer:archived",
+      "name": "Archived Code",
+      "description": "Earlier versions of phase diagram and superfluid stiffness scripts stored in the code/ subdirectory, superseded by refined implementations in the project root.",
+      "nodeIds": [
+        "file:code/a_pdes_wave.m",
+        "file:code/affphase.m",
+        "file:code/asphase.m",
+        "file:code/awhy.m"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Altermagnet Spin Splitting",
+      "description": "The entire project rests on a single physical ingredient: the altermagnet. Alterdispersion.m encodes the hallmark spin-splitting of an altermagnetic material as J*sin(kx)*sin(ky), a d-wave-symmetric exchange that reverses sign across the Brillouin zone. This function has zero fan-in — nothing depends on it through edges — yet it is the conceptual atom from which all subsequent Hamiltonians are built. Understanding this formula is the prerequisite for every other file.",
+      "nodeIds": [
+        "file:Alterdispersion.m"
+      ],
+      "languageLesson": "MATLAB function files expose a single named function matching the filename. A 'pure utility' function like this has no side effects, no plots, and no persistent state — it simply maps (kx, ky, J) to a scalar, making it the ideal building block for vectorised k-space loops in higher-level scripts."
+    },
+    {
+      "order": 2,
+      "title": "Tight-Binding k-Space Model",
+      "description": "hoppingMat_altermagnet.m elevates the spin-splitting formula into a full tight-binding model. It constructs the real-space hopping matrix for the altermagnetic lattice and Fourier-transforms it to momentum space via FFT, producing the band structure that all BdG calculations use. This file sits at the boundary between lattice geometry and the continuous k-space physics exploited by the solvers.",
+      "nodeIds": [
+        "file:hoppingMat_altermagnet.m"
+      ],
+      "languageLesson": "Using MATLAB's built-in fft2 on a real-space hopping matrix is a standard trick in tight-binding codes: it replaces an O(N^2) Bloch sum with an O(N log N) FFT, which is decisive for the dense k-grids needed to resolve Fermi surfaces."
+    },
+    {
+      "order": 3,
+      "title": "Core Gap-Equation Solvers",
+      "description": "gap_eq_solver.m is the most reused solver in the project (fan-in 3): it implements the self-consistency condition for the superconducting order parameter Delta across all pairing symmetries. gap_eq_solver2.m extends it with 10,000 fixed-point iterations for cases where convergence requires more steps. Together they form the mathematical engine that determines whether a given (J, mu, T, V) point supports superconductivity and at what Delta.",
+      "nodeIds": [
+        "file:gap_eq_solver.m",
+        "file:gap_eq_solver2.m"
+      ],
+      "languageLesson": "Fixed-point iteration (repeatedly evaluating Delta_new = F(Delta_old) until |Delta_new - Delta_old| < tol) is the standard approach for BdG self-consistency. More iterations increase convergence at the cost of runtime; gap_eq_solver2.m's 10,000-step cap is appropriate near phase boundaries where convergence slows."
+    },
+    {
+      "order": 4,
+      "title": "BdG Hamiltonian Solver",
+      "description": "Hbdg_solver.m is the single most-depended-upon file in the codebase (fan-in 4). It constructs the full Bogoliubov-de Gennes Hamiltonian matrix for a given k-point, diagonalises it, and returns eigenvalues and Bogoliubov amplitudes (u_k, v_k). It supports multiple pairing symmetries (s-wave, p+ip, d-wave) and Cooper-pair momentum q for FFLO states, making it the universal computational primitive for every spectrum or phase-boundary calculation.",
+      "nodeIds": [
+        "file:Hbdg_solver.m"
+      ],
+      "languageLesson": "The BdG transformation doubles the Hilbert space: a 2x2 spin Hamiltonian becomes a 4x4 Nambu matrix. MATLAB's eig() on these small matrices at each k-point is fast, so the outer loop over the Brillouin zone grid is the bottleneck — hence the GPU acceleration seen in later scripts."
+    },
+    {
+      "order": 5,
+      "title": "Chemical Potential Adjustment",
+      "description": "Before scanning parameter spaces, the chemical potential mu must be held fixed at a target electron density. aMu_J_dependence.m adjusts mu as the altermagnet coupling J is varied, while aMu_q_dependence.m does the same as the FFLO momentum q is scanned. Without these bookkeeping scripts, a phase diagram would conflate physics changes with density drift, making the boundaries unphysical.",
+      "nodeIds": [
+        "file:aMu_J_dependence.m",
+        "file:aMu_q_dependence.m"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "FFLO Momentum Landscape",
+      "description": "affffphase.m is the most-depended-upon script in the project (fan-in 6): it performs a 2D scan over Cooper-pair momenta (qx, qy) using GPU acceleration to find the global minimum of the BdG free energy, identifying the optimal FFLO wavevector. Six downstream scripts load its results — it is the canonical source of the self-consistent FFLO momentum q_self that all superfluid density, stiffness, and phase-boundary calculations use.",
+      "nodeIds": [
+        "file:affffphase.m"
+      ],
+      "languageLesson": "MATLAB's gpuArray transparently offloads array operations to a CUDA GPU. For a 2D k-grid at each (qx, qy) point, the per-point BdG diagonalisation is embarrassingly parallel — the GPU provides an order-of-magnitude speedup over a CPU loop for this class of scan."
+    },
+    {
+      "order": 7,
+      "title": "FFLO State Refinement",
+      "description": "aAMSC_FFLO.m and its refined successor aAMSC_FFLO_REMASTER.m scan (qx, qy) space specifically for the altermagnetic superconductor, building the FFLO energy landscape. The REMASTER version uses an analytical reduction of the BdG matrix and a higher-resolution grid, producing cleaner energy minima. aFFLO_eig_qc.m complements these by analytically scanning Cooper momentum q to find the critical q_c where nodal quasiparticles first appear.",
+      "nodeIds": [
+        "file:aAMSC_FFLO.m",
+        "file:aAMSC_FFLO_REMASTER.m",
+        "file:aFFLO_eig_qc.m"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Phase Diagram Scanning",
+      "description": "With solvers and FFLO momenta established, the project's main scientific output is the phase diagram. aPhaseDiagramfin.m is the comprehensive script that sweeps (J, V) and (J, U) space, self-consistently solving for all competing phases and recording which wins at each point. aInAndOut.m is its predecessor, covering only (J, V) for s-wave and p+ip; together they show the evolution of the phase-diagram methodology.",
+      "nodeIds": [
+        "file:aPhaseDiagramfin.m",
+        "file:aInAndOut.m"
+      ],
+      "languageLesson": "Phase diagram scripts typically follow a three-level loop structure: outer loop over parameter 1 (e.g., J), inner loop over parameter 2 (e.g., V), and innermost call to the self-consistency solver. Pre-allocating result arrays before the loops is critical for performance in MATLAB — avoid growing arrays inside loops."
+    },
+    {
+      "order": 9,
+      "title": "RuO2 Material Model",
+      "description": "aRuO2AMSC.m is the original phase diagram script targeted specifically at RuO2, the prime candidate altermagnetic superconductor. aRuO2AMSCedited.m refines it by replacing the continuum dispersion with the full tight-binding band structure from hoppingMat_altermagnet.m and delegating Hamiltonian work to Hbdg_solver.m. Together they trace the intellectual history of how the model was materialised from a generic altermagnet to a RuO2-specific one.",
+      "nodeIds": [
+        "file:aRuO2AMSC.m",
+        "file:aRuO2AMSCedited.m"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Strained RuO2 Extensions",
+      "description": "aStrainedRuO2Zeeman.m and aStrainedRuO2brokenTRS.m push beyond the pristine crystal by introducing strain-induced symmetry breaking. The first adds momentum-dependent Zeeman-like fields to the continuum Hamiltonian; the second studies time-reversal symmetry breaking that enables topological p-wave superconductivity. SymmB_gap_eq_solver.m handles the gap equation for these broken-symmetry variants, extending the core solver for TRS-breaking situations.",
+      "nodeIds": [
+        "file:aStrainedRuO2Zeeman.m",
+        "file:aStrainedRuO2brokenTRS.m",
+        "file:SymmB_gap_eq_solver.m"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "Penetration Depth",
+      "description": "aPenetrationDepth_AMSC.m computes the temperature-dependent London penetration depth lambda(T) for s-wave, p+ip, and gapless FFLO phases — a key experimental observable that can distinguish competing superconducting orders. aBCS_penetrationdept.m is its predecessor, covering the same phases in the BCS continuum limit. The different T-dependences of lambda are a direct experimental signature of the pairing symmetry.",
+      "nodeIds": [
+        "file:aPenetrationDepth_AMSC.m",
+        "file:aBCS_penetrationdept.m"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Superfluid Density",
+      "description": "The superfluid density rho_s is the stiffness of the superconducting condensate to phase gradients and enters all transport measurements. asuperfluidDensity_SWAVE.m computes it at T=0 for the s-wave FFLO state via the second derivative of the free energy; asphase_finiteTemp.m and asphase_finiteTemp_nonself.m extend this to finite temperature; aSuperfluidDensity_BFS.m treats the special Bogoliubov Fermi Surface scenario; a_pdes_phase_finiteTemp.m covers the p-wave FFLO phase. superfluid_density_qc.m focuses on the density near the critical momentum q_c found in Step 7.",
+      "nodeIds": [
+        "file:asuperfluidDensity_SWAVE.m",
+        "file:asphase_finiteTemp.m",
+        "file:aSuperfluidDensity_BFS.m",
+        "file:a_pdes_phase_finiteTemp.m",
+        "file:superfluid_density_qc.m"
+      ]
+    },
+    {
+      "order": 13,
+      "title": "Electromagnetic Response",
+      "description": "aLONDON_RESPONSE.m computes the full London electromagnetic response tensor (R_xx, R_yy, R_xy) from a Fermi surface integral, going beyond the scalar penetration depth to capture the anisotropic and Hall-like responses that can arise when both altermagnetism and superconductivity are present simultaneously. This is the most sophisticated observable in the project and connects directly to magneto-optical and microwave experiments.",
+      "nodeIds": [
+        "file:aLONDON_RESPONSE.m"
+      ]
+    },
+    {
+      "order": 14,
+      "title": "Spectral Visualisation",
+      "description": "abandgapSC.m plots the BdG quasiparticle band structure along standard high-symmetry paths for each superconducting phase, revealing gap nodes and dispersion topology. aQuasiparticleAmplitudeBDGGapStructure.m adds electron/hole amplitude color mixing to the same plots, making the Bogoliubov character of each band branch visually explicit. aspindrawer.m visualises the spin texture on the Bloch sphere for both the altermagnetic normal state and p-wave superconducting state.",
+      "nodeIds": [
+        "file:abandgapSC.m",
+        "file:aQuasiparticleAmplitudeBDGGapStructure.m",
+        "file:aspindrawer.m"
+      ]
+    },
+    {
+      "order": 15,
+      "title": "Archived Predecessors",
+      "description": "The code/ subdirectory preserves earlier versions of the main scripts: affphase.m (superseded by awhywhy.m), asphase.m (superseded by the current s-wave FFLO suite), awhy.m (extended plotting predecessor), and a_pdes_wave.m (p-wave stiffness predecessor). Reading these alongside their successors shows what was changed and why — an important resource for understanding the research decisions embedded in the current implementation.",
+      "nodeIds": [
+        "file:code/affphase.m",
+        "file:code/asphase.m",
+        "file:code/awhy.m",
+        "file:code/a_pdes_wave.m"
+      ]
+    }
+  ]
+}

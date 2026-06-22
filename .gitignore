@@ -3,3 +3,5 @@
 *.fig
 *.png
 *.mat
+.understand-anything/intermediate/
+.understand-anything/tmp/
